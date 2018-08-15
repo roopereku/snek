@@ -59,6 +59,61 @@ private:
 	WorldSpace& ws;
 };
 
+class PointHandler
+{
+public:
+	PointHandler(WorldSpace& ws) : ws(ws)
+	{
+		minRadius = 0.001f;
+		maxRadius = 0.005f;
+
+		radius = 0.0f;
+
+		pulseCounter = 0.0f;
+	}
+
+	void generate(Borders& borders)
+	{
+		pointCenter = Vector2(0.2f, 0.2f);
+		pulseCounter = 0.0f;
+	}
+
+	bool intersectsPoint(Vector2 ip)
+	{
+		Vector2 size(radius, radius);
+		Vector2 min = pointCenter - size;
+		Vector2 max = pointCenter + size;
+
+		return ip > min && ip < max;
+	}
+
+	void draw()
+	{
+		radius = fabs(sin(pulseCounter) / 20);
+		pulseCounter+=0.03f;
+
+		Vector2 size(radius, radius);
+		Vector2 position = pointCenter - (size / 2);
+
+		Render::setColor(200, 0, 0);
+		Render::rect( ws.rectToScreen(position, size) );
+
+		size/=2;
+		position[Y]-= (size[H] / 2);
+		position[X]+= (size[W] / 2);
+
+		Render::setColor(0, 255, 0);
+		Render::rect( ws.rectToScreen(position, size) );
+	}
+
+private:
+	Vector2 pointCenter;
+	float radius;
+
+	float pulseCounter;
+	WorldSpace& ws;
+};
+
 class Snake
 {
 public:
@@ -102,7 +157,7 @@ public:
 			keys[keyID].pressed = pressed;
 	}
 
-	void update(Borders& borders)
+	bool update(Borders& borders, PointHandler& point)
 	{
 		if(!borders.pointInside(parts[0]))
 		{
@@ -145,6 +200,8 @@ public:
 			parts[i] = last;
 			last = last2;
 		}
+
+		return true;
 	}
 
 	void draw()
@@ -167,14 +224,11 @@ public:
 		{
 			constexpr float hitBoxRadius = 0.004f;
 
-			Vector2 min = ws.toScreen(part - Vector2(hitBoxRadius, hitBoxRadius));
-			Vector2 max = ws.toScreen(part + Vector2(hitBoxRadius, hitBoxRadius));
-			
-			Render::setColor(255, 0, 0);
-			Render::line(min[X], min[Y], max[X], min[Y]);
-			Render::line(max[X], min[Y], max[X], max[Y]);
-			Render::line(max[X], max[Y], min[X], max[Y]);
-			Render::line(min[X], max[Y], min[X], min[Y]);
+			Vector2 position = part - Vector2(hitBoxRadius, hitBoxRadius);
+			Vector2 size = Vector2(hitBoxRadius * 2, hitBoxRadius * 2);
+
+			Render::setColor(0, 100, 0);
+			Render::rect( ws.rectToScreen(position, size) );
 		};
 
 		for(size_t i = 1; i < parts.size(); i++)
@@ -184,10 +238,11 @@ public:
 			Vector2 tPos = ws.toScreen(parts[i]);
 			Vector2 tPosLast = ws.toScreen(parts[i - 1]);
 
-			Render::line(tPos[X], tPos[Y], tPosLast[X], tPosLast[Y]);
+		//	Render::line(tPos[X], tPos[Y], tPosLast[X], tPosLast[Y]);
+			//Render::dot(tPos[X], tPos[Y]);
 
 		//	drawSphere(parts[i]);
-		//	drawHitbox(parts[i]);
+			drawHitbox(parts[i]);
 		}
 
 		float rot = toRadian(rotation);
@@ -212,19 +267,35 @@ private:
 class Game
 {
 public:
-	Game(Window& win) : ws(win), snake(Vector2(0.0f, 0.0f), ws), borders(Vector2(-0.5f, -0.5f), Vector2(0.5f, 0.5f), ws)
+	Game(Window& win) : ws(win), snake(Vector2(0.0f, 0.0f), ws), borders(Vector2(-0.5f, -0.5f), Vector2(0.5f, 0.5f), ws), point(ws)
 	{
+		ws[X]-=0.1f;
+		ws[Y]-=0.1f;
+
 		snake.addLength(50);
+		point.generate(borders);
 	}
 
 	void input(SDL_Event evnt)
 	{
 		snake.input(evnt);
+
+		if(evnt.type == SDL_KEYDOWN)
+		{
+			switch(evnt.key.keysym.sym)
+			{
+				case SDLK_w: ws[Y]+=0.1f; break;
+				case SDLK_s: ws[Y]-=0.1f; break;
+
+				case SDLK_a: ws[X]-=0.1f; break;
+				case SDLK_d: ws[X]+=0.1f; break;
+			}
+		}
 	}
 
 	void update()
 	{
-		snake.update(borders);
+		snake.update(borders, point);
 	}
 
 	void draw()
@@ -232,6 +303,7 @@ public:
 		ws.draw();
 		snake.draw();
 		borders.draw();
+		point.draw();
 	}
 
 private:
@@ -239,6 +311,7 @@ private:
 
 	Snake snake;
 	Borders borders;
+	PointHandler point;
 };
 
 int main()

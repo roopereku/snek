@@ -41,3 +41,14 @@ Vector2 WorldSpace::toScreen(Vector2 vec)
 {
 	return Vector2( ((vec[X] + radiusX) / 2) * (win['W'] / radiusX), ((vec[Y] + radiusY) / 2) * (win['H'] / radiusY) );
 }
+
+SDL_Rect WorldSpace::rectToScreen(Vector2 position, Vector2 size)
+{
+		Vector2 worldRadius(radiusX, radiusY);
+		size-=(worldRadius);
+
+		position = toScreen(position);
+		size = toScreen(size);
+
+		return { (int)position[X], (int)position[Y], (int)size[W], (int)size[H] };
+}
