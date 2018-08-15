@@ -52,6 +52,16 @@ public:
 		return position > min[Y] && position < max[Y];
 	}
 
+	Vector2 getMinimum()
+	{
+		return min;
+	}
+
+	Vector2 getMaximum()
+	{
+		return max;
+	}
+
 private:
 	Vector2 min;
 	Vector2 max;
@@ -64,17 +74,25 @@ class PointHandler
 public:
 	PointHandler(WorldSpace& ws) : ws(ws)
 	{
-		minRadius = 0.001f;
-		maxRadius = 0.005f;
-
 		radius = 0.0f;
-
 		pulseCounter = 0.0f;
 	}
 
 	void generate(Borders& borders)
 	{
-		pointCenter = Vector2(0.2f, 0.2f);
+		int xMin = borders.getMinimum()[X] * 10,
+			xMax = borders.getMaximum()[X] * 10;
+
+		int yMin = borders.getMinimum()[Y] * 10,
+			yMax = borders.getMaximum()[Y] * 10;
+
+		float x = (float)(rand() % xMax + xMin) / 10;
+		float y = (float)(rand() % yMax + yMin) / 10;
+
+		SDL_Log("%.2f : %.2f", x, y);
+
+		pointCenter = Vector2(x, y);
+
 		pulseCounter = 0.0f;
 	}
 
@@ -159,6 +177,14 @@ public:
 
 	bool update(Borders& borders, PointHandler& point)
 	{
+		if(point.intersectsPoint(parts[0]))
+		{
+			SDL_Log("Adding length!");
+
+			point.generate(borders);
+			addLength(10);
+		}
+
 		if(!borders.pointInside(parts[0]))
 		{
 			if(!borders.pointInsideX(parts[0][X]))
@@ -192,9 +218,7 @@ public:
 		for(size_t i = 1; i < parts.size(); i++)
 		{
 			if(partIntersection(parts[i]))
-			{
-				SDL_Log("Hit %d!", (int)i);
-			}
+				return false;
 			
 			Vector2 last2 = parts[i];
 			parts[i] = last;
@@ -274,11 +298,14 @@ public:
 
 		snake.addLength(50);
 		point.generate(borders);
+
+		gameRunning = true;
 	}
 
 	void input(SDL_Event evnt)
 	{
-		snake.input(evnt);
+		if(gameRunning)
+			snake.input(evnt);
 
 		if(evnt.type == SDL_KEYDOWN)
 		{
@@ -295,7 +322,11 @@ public:
 
 	void update()
 	{
-		snake.update(borders, point);
+		if(gameRunning)
+		{
+			if(!snake.update(borders, point))
+				gameRunning = false;
+		}
 	}
 
 	void draw()
@@ -312,6 +343,8 @@ private:
 	Snake snake;
 	Borders borders;
 	PointHandler point;
+
+	bool gameRunning;
 };
 
 int main()
