@@ -42,6 +42,16 @@ public:
 		return point > min && point < max;
 	}
 
+	bool pointInsideX(float position)
+	{
+		return position > min[X] && position < max[X];
+	}
+
+	bool pointInsideY(float position)
+	{
+		return position > min[Y] && position < max[Y];
+	}
+
 private:
 	Vector2 min;
 	Vector2 max;
@@ -94,15 +104,12 @@ public:
 
 	void update(Borders& borders)
 	{
-		/*	TODO
-		 *	Add a check to see which angle the snake is in, and adjust
-		 *	the position where the snake appears when going out of bounds.
-		 */
-
 		if(!borders.pointInside(parts[0]))
 		{
-			parts[0][X] = -parts[0][X];
-			parts[0][Y] = -parts[0][Y];
+			if(!borders.pointInsideX(parts[0][X]))
+				parts[0][X] = -parts[0][X];
+			if(!borders.pointInsideY(parts[0][Y]))
+				parts[0][Y] = -parts[0][Y];
 		}
 
 		for(auto& it : keys)
