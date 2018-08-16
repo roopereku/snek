@@ -75,8 +75,8 @@ class PointHandler
 public:
 	PointHandler(WorldSpace& ws) : ws(ws)
 	{
-		radius = 0.0f;
 		pulseCounter = 0.0f;
+		staticSize = Vector2(0.05f, 0.05f);
 	}
 
 	void generate(Borders& borders)
@@ -110,16 +110,15 @@ public:
 
 	bool intersectsPoint(Vector2 ip)
 	{
-		Vector2 size(radius, radius);
-		Vector2 min = pointCenter - size;
-		Vector2 max = pointCenter + size;
+		Vector2 min = pointCenter - staticSize;
+		Vector2 max = pointCenter + staticSize;
 
 		return ip > min && ip < max;
 	}
 
 	void draw()
 	{
-		radius = fabs(sin(pulseCounter) / 20);
+		float radius = fabs(sin(pulseCounter) / 20);
 		pulseCounter+=0.03f;
 
 		Vector2 size(radius, radius);
@@ -138,7 +137,7 @@ public:
 
 private:
 	Vector2 pointCenter;
-	float radius;
+	Vector2 staticSize;
 
 	float pulseCounter;
 	WorldSpace& ws;
