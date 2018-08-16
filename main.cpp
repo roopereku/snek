@@ -8,6 +8,7 @@
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
+#include <chrono>
 #include <vector>
 #include <map>
 
@@ -81,6 +82,8 @@ public:
 
 	void generate(Borders& borders)
 	{
+		generatedAt = std::chrono::high_resolution_clock::now();
+
 		/*	TODO
 		 *	Do some clever to calculate a position between min and max
 		 */
@@ -106,6 +109,14 @@ public:
 
 		pointCenter = Vector2(x, y);
 		pulseCounter = 0.0f;
+	}
+
+	int pick()
+	{
+		std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<float> elapsed = end - generatedAt;
+
+		return elapsed.count();
 	}
 
 	bool intersectsPoint(Vector2 ip)
@@ -139,6 +150,8 @@ private:
 	Vector2 pointCenter;
 	Vector2 staticSize;
 
+	std::chrono::time_point<std::chrono::high_resolution_clock> generatedAt;
+
 	float pulseCounter;
 	WorldSpace& ws;
 };
@@ -152,6 +165,8 @@ public:
 
 		rotation = 0.0f;
 		speed = 1.0f;
+
+		score = 0.0f;
 
 		keys[SDLK_LEFT].pressed = keys[SDLK_RIGHT].pressed = 0;
 
@@ -192,6 +207,16 @@ public:
 		{
 			SDL_Log("Adding length! %d -> %d", (int)parts.size(), (int)parts.size() + 10);
 			SDL_Log("Adding speed! %.2f -> %.2f", speed, speed + 0.1f);
+
+			/*	TODO
+			 *	Do some calculation to add more to the score the less time is spent
+			 */
+
+			float ls = score;
+			float ns = point.pick();
+
+			score+=ns;
+			SDL_Log("Score! %.2f -> %.2f", ls, score);
 
 			point.generate(borders);
 			addLength(10);
@@ -294,6 +319,8 @@ private:
 	float rotation;
 	float speed;
 
+	float score;
+
 	struct Key { bool pressed = false; float effect = 0.0f; };
 	std::map <int, Key> keys;
 
@@ -303,6 +330,9 @@ private:
 class Game
 {
 public:
+	/*	TODO
+	 *	Currently border has to be symmetrical or the snake won't switch the side correctly.
+	 */
 	Game(Window& win) : ws(win), snake(Vector2(0.0f, 0.0f), ws), borders(Vector2(-0.7f, -0.7f), Vector2(0.7f, 0.7f), ws), point(ws)
 	{
 		ws[X]-=0.1f;
