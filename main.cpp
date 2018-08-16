@@ -151,7 +151,7 @@ public:
 		parts.push_back(origin);
 
 		rotation = 0.0f;
-		speed = 0.005f;
+		speed = 1.0f;
 
 		keys[SDLK_LEFT].pressed = keys[SDLK_RIGHT].pressed = 0;
 
@@ -191,9 +191,12 @@ public:
 		if(point.intersectsPoint(parts[0]))
 		{
 			SDL_Log("Adding length! %d -> %d", (int)parts.size(), (int)parts.size() + 10);
+			SDL_Log("Adding speed! %.2f -> %.2f", speed, speed + 0.1f);
 
 			point.generate(borders);
 			addLength(10);
+
+			speed+=0.1f;
 		}
 
 		if(!borders.pointInside(parts[0]))
@@ -213,8 +216,6 @@ public:
 		float rot = toRadian(rotation);
 		Vector2 direction(cos(rot), sin(rot));
 
-		Vector2 last = parts[0];
-		parts[0]+=(direction * speed);
 
 		const auto partIntersection = [&](Vector2 part) -> bool
 		{
@@ -226,14 +227,20 @@ public:
 			return parts[0] > min && parts[0] < max;
 		};
 
-		for(size_t i = 1; i < parts.size(); i++)
+		for(int i = 0; i < speed; i++)
 		{
-			if(partIntersection(parts[i]))
-				return false;
-			
-			Vector2 last2 = parts[i];
-			parts[i] = last;
-			last = last2;
+			Vector2 last = parts[0];
+			parts[0]+=(direction * 0.005f);
+
+			for(size_t i = 1; i < parts.size(); i++)
+			{
+				if(partIntersection(parts[i]))
+					return false;
+				
+				Vector2 last2 = parts[i];
+				parts[i] = last;
+				last = last2;
+			}
 		}
 
 		return true;
