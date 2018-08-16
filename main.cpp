@@ -6,6 +6,7 @@
 #include "WorldSpace.h"
 
 #include <math.h>
+#include <time.h>
 #include <stdlib.h>
 #include <vector>
 #include <map>
@@ -80,19 +81,30 @@ public:
 
 	void generate(Borders& borders)
 	{
-		int xMin = borders.getMinimum()[X] * 10,
-			xMax = borders.getMaximum()[X] * 10;
+		/*	TODO
+		 *	Do some clever to calculate a position between min and max
+		 */
 
-		int yMin = borders.getMinimum()[Y] * 10,
-			yMax = borders.getMaximum()[Y] * 10;
+		int xSize = (borders.getMaximum()[X] - borders.getMinimum()[X]) * 10;
+		int ySize = (borders.getMaximum()[Y] - borders.getMinimum()[Y]) * 10;
 
-		float x = (float)(rand() % xMax + xMin) / 10;
-		float y = (float)(rand() % yMax + yMin) / 10;
+		std::vector <float> xData(xSize);
+		std::vector <float> yData(ySize);
+
+		for(int xi = 0; xi < xSize; xi++)
+			xData[xi] = borders.getMinimum()[X] + 0.1f * xi;
+
+		for(int yi = 0; yi < ySize; yi++)
+			yData[yi] = borders.getMinimum()[Y] + 0.1f * yi;
+
+		SDL_Log("%d : %d", xSize, ySize);
+
+		float x = xData[ (rand() % xSize + 2) - 1 ];
+		float y = yData[ (rand() % ySize + 2) - 1 ];
 
 		SDL_Log("%.2f : %.2f", x, y);
 
 		pointCenter = Vector2(x, y);
-
 		pulseCounter = 0.0f;
 	}
 
@@ -179,7 +191,7 @@ public:
 	{
 		if(point.intersectsPoint(parts[0]))
 		{
-			SDL_Log("Adding length!");
+			SDL_Log("Adding length! %d -> %d", (int)parts.size(), (int)parts.size() + 10);
 
 			point.generate(borders);
 			addLength(10);
@@ -259,21 +271,15 @@ public:
 		{
 			Render::setColor(0, 255, 0);
 
-			Vector2 tPos = ws.toScreen(parts[i]);
+			/*Vector2 tPos = ws.toScreen(parts[i]);
 			Vector2 tPosLast = ws.toScreen(parts[i - 1]);
-
+			*/
 		//	Render::line(tPos[X], tPos[Y], tPosLast[X], tPosLast[Y]);
 			//Render::dot(tPos[X], tPos[Y]);
 
 		//	drawSphere(parts[i]);
 			drawHitbox(parts[i]);
 		}
-
-		float rot = toRadian(rotation);
-		Vector2 direction = ws.toScreen(parts[0] + (Vector2(cos(rot), sin(rot)) * 0.1f));
-		
-		Render::setColor(255, 0, 0);
-		Render::dot(direction[X], direction[Y]);
 	}
 
 private:
@@ -291,7 +297,7 @@ private:
 class Game
 {
 public:
-	Game(Window& win) : ws(win), snake(Vector2(0.0f, 0.0f), ws), borders(Vector2(-0.5f, -0.5f), Vector2(0.5f, 0.5f), ws), point(ws)
+	Game(Window& win) : ws(win), snake(Vector2(0.0f, 0.0f), ws), borders(Vector2(-0.7f, -0.7f), Vector2(0.7f, 0.7f), ws), point(ws)
 	{
 		ws[X]-=0.1f;
 		ws[Y]-=0.1f;
@@ -349,6 +355,8 @@ private:
 
 int main()
 {
+	srand(time(0));
+
 	if(!SDL_Init(SDL_INIT_VIDEO))
 	{
 		bool isRunning;
