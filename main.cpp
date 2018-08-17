@@ -430,7 +430,6 @@ public:
 			db = (float)b / parts.size();
 		}
 
-
 		for(size_t i = 1; i < parts.size(); i++)
 		{
 			nr-=dr;
@@ -589,7 +588,7 @@ private:
 	bool gameRunning;
 };
 
-int main()
+int main(int argc, char** argv)
 {
 	srand(time(0));
 
