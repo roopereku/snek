@@ -162,11 +162,13 @@ public:
 	Snake(Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, float direction, float sensitivity) : ws(ws)
 	{
 		parts.push_back(origin);
-		addLength(500);
+		addLength(50);
 
 		rotation = direction;
 		speed = 1.0f;
+
 		score = 0.0f;
+		alive = true;
 
 		r = rand() % 255 + 100;
 		g = rand() % 255 + 100;
@@ -207,6 +209,17 @@ public:
 
 	bool update(Borders& borders, PointHandler& point, std::vector <Snake>& other)
 	{
+		if(!alive)
+		{
+			if(parts.size() > 0)
+			{
+				parts.pop_back();
+				return true;
+			}
+
+			return false;
+		}
+
 		if(point.intersectsPoint(parts[0]))
 		{
 			SDL_Log("Adding length! %d -> %d", (int)parts.size(), (int)parts.size() + 10);
@@ -284,7 +297,8 @@ public:
 
 	void kill()
 	{
-		SDL_Log("Snake killed!");
+		//SDL_Log("Snake killed!");
+		alive = false;
 	}
 
 	void draw()
@@ -336,6 +350,7 @@ private:
 	float speed;
 
 	float score;
+	bool alive;
 
 	unsigned char r;
 	unsigned char g;
@@ -367,10 +382,22 @@ public:
 			snakes[i].draw();
 	}
 
-	void update(Borders& borders, PointHandler& point)
+	bool update(Borders& borders, PointHandler& point)
 	{
+		std::vector <bool> snakeStates(snakes.size());
+			
 		for(size_t i = 0; i < snakes.size(); i++)
-			snakes[i].update(borders, point, snakes);
+		{
+			snakeStates[i] = snakes[i].update(borders, point, snakes);
+		}
+
+		int successfulReturns = 0;
+		for(size_t i = 0; i < snakeStates.size(); i++)
+		{
+			successfulReturns += (snakeStates[i] == true);
+		}
+
+		return successfulReturns > 1;
 	}
 
 private:
@@ -415,7 +442,11 @@ public:
 
 	void update()
 	{
-		snakes.update(borders, point);
+		if(gameRunning && !snakes.update(borders, point))
+		{
+			SDL_Log("End");
+			gameRunning = false;
+		}
 	}
 
 	void draw()
