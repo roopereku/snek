@@ -322,9 +322,9 @@ public:
 		if(!borders.pointInside(parts[0]))
 		{
 			if(!borders.pointInsideX(parts[0][X]))
-				parts[0][X] = -parts[0][X];
+				parts[0][X] = (parts[0][X] > 0.0f) ? borders.getMinimum()[X] : borders.getMaximum()[X];
 			if(!borders.pointInsideY(parts[0][Y]))
-				parts[0][Y] = -parts[0][Y];
+				parts[0][Y] = (parts[0][Y] > 0.0f) ? borders.getMinimum()[Y] : borders.getMaximum()[Y];
 		}
 
 		for(auto& it : keys)
@@ -527,17 +527,14 @@ public:
 	/*	TODO
 	 *	Currently border has to be symmetrical or the snake won't switch the side correctly.
 	 */
-	Game(Window& win) : ws(win), borders(Vector2(-0.7f, -0.7f), Vector2(0.7f, 0.7f), ws), point(ws)
+	Game(Window& win) : ws(win), borders(Vector2(-0.5f, -0.5f), Vector2(0.7f, 0.7f), ws), point(ws)
 	{
 		ws[X]-=0.1f;
 		ws[Y]-=0.1f;
 
 		point.generate(borders);
 
-		/* TODO
-		 * Angles such as 45, 135, 225, 315 will make the snake eat itself.
-		 */
-		snakes.add(Snake(2, Vector2(0.0f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
+		snakes.add(Snake(2, Vector2(0.0f, 0.2f), ws, SDLK_n, SDLK_m, 45.0f, 2.5f));
 		snakes.add(Snake(2, Vector2(0.6f, 0.2f), ws, 0, 0, 90.0f, 2.5f));
 
 		gameRunning = true;
