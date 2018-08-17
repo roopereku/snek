@@ -159,19 +159,23 @@ private:
 class Snake
 {
 public:
-	Snake(Vector2 origin, WorldSpace& ws) : ws(ws)
+	Snake(Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, float direction, float sensitivity) : ws(ws)
 	{
 		parts.push_back(origin);
+		addLength(500);
 
-		rotation = 0.0f;
+		rotation = direction;
 		speed = 1.0f;
-
 		score = 0.0f;
 
-		keys[SDLK_LEFT].pressed = keys[SDLK_RIGHT].pressed = 0;
+		r = rand() % 255 + 100;
+		g = rand() % 255 + 100;
+		b = rand() % 255 + 100;
 
-		keys[SDLK_LEFT].effect = -2.5f;
-		keys[SDLK_RIGHT].effect = 2.5f;
+		keys[keyLeft].pressed = keys[keyRight].pressed = 0;
+
+		keys[keyLeft].effect = -sensitivity;
+		keys[keyRight].effect = sensitivity;
 	}
 
 	void addLength(int amount)
@@ -201,7 +205,7 @@ public:
 			keys[keyID].pressed = pressed;
 	}
 
-	bool update(Borders& borders, PointHandler& point)
+	bool update(Borders& borders, PointHandler& point, std::vector <Snake>& other)
 	{
 		if(point.intersectsPoint(parts[0]))
 		{
@@ -241,15 +245,14 @@ public:
 		float rot = toRadian(rotation);
 		Vector2 direction(cos(rot), sin(rot));
 
-
-		const auto partIntersection = [&](Vector2 part) -> bool
+		const auto partIntersection = [&](Vector2 head, Vector2 part) -> bool
 		{
 			constexpr float hitBoxRadius = 0.004f;
 
 			Vector2 min = part - Vector2(hitBoxRadius, hitBoxRadius);
 			Vector2 max = part + Vector2(hitBoxRadius, hitBoxRadius);
 
-			return parts[0] > min && parts[0] < max;
+			return head > min && head < max;
 		};
 
 		for(int i = 0; i < speed; i++)
@@ -257,13 +260,16 @@ public:
 			Vector2 last = parts[0];
 			parts[0]+=(direction * 0.005f);
 
-			for(size_t i = 1; i < parts.size(); i++)
+			for(size_t pi = 1; pi < parts.size(); pi++)
 			{
-				if(partIntersection(parts[i]))
-					return false;
+				for(size_t si = 0; si < other.size(); si++)
+				{
+					if(partIntersection(other[si].getHeadPosition(), parts[pi]))
+						other[si].kill();
+				}
 				
-				Vector2 last2 = parts[i];
-				parts[i] = last;
+				Vector2 last2 = parts[pi];
+				parts[pi] = last;
 				last = last2;
 			}
 		}
@@ -271,12 +277,22 @@ public:
 		return true;
 	}
 
+	Vector2 getHeadPosition()
+	{
+		return parts[0];
+	}
+
+	void kill()
+	{
+		SDL_Log("Snake killed!");
+	}
+
 	void draw()
 	{
 		const auto drawSphere = [&](Vector2 center)
 		{
-			#define r rand() % 255 + 1
-			Render::setColor(r, r, r);
+			//#define r rand() % 255 + 1
+			//Render::setColor(r, r, r);
 
 			for(int i = 0; i < 360; i++)
 			{
@@ -294,13 +310,13 @@ public:
 			Vector2 position = part - Vector2(hitBoxRadius, hitBoxRadius);
 			Vector2 size = Vector2(hitBoxRadius * 2, hitBoxRadius * 2);
 
-			Render::setColor(0, 100, 0);
+			Render::setColor(r, g, b);
 			Render::rect( ws.rectToScreen(position, size) );
 		};
 
 		for(size_t i = 1; i < parts.size(); i++)
 		{
-			Render::setColor(0, 255, 0);
+			//Render::setColor(0, 255, 0);
 
 			/*Vector2 tPos = ws.toScreen(parts[i]);
 			Vector2 tPosLast = ws.toScreen(parts[i - 1]);
@@ -321,10 +337,44 @@ private:
 
 	float score;
 
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+
 	struct Key { bool pressed = false; float effect = 0.0f; };
 	std::map <int, Key> keys;
 
 	WorldSpace& ws;
+};
+
+class SnakeHandler
+{
+public:
+	void add(Snake snake)
+	{
+		snakes.push_back( snake );
+	}
+
+	void input(SDL_Event evnt)
+	{
+		for(size_t i = 0; i < snakes.size(); i++)
+			snakes[i].input(evnt);
+	}
+
+	void draw()
+	{
+		for(size_t i = 0; i < snakes.size(); i++)
+			snakes[i].draw();
+	}
+
+	void update(Borders& borders, PointHandler& point)
+	{
+		for(size_t i = 0; i < snakes.size(); i++)
+			snakes[i].update(borders, point, snakes);
+	}
+
+private:
+	std::vector <Snake> snakes;
 };
 
 class Game
@@ -333,21 +383,22 @@ public:
 	/*	TODO
 	 *	Currently border has to be symmetrical or the snake won't switch the side correctly.
 	 */
-	Game(Window& win) : ws(win), snake(Vector2(0.0f, 0.0f), ws), borders(Vector2(-0.7f, -0.7f), Vector2(0.7f, 0.7f), ws), point(ws)
+	Game(Window& win) : ws(win), borders(Vector2(-0.7f, -0.7f), Vector2(0.7f, 0.7f), ws), point(ws)
 	{
 		ws[X]-=0.1f;
 		ws[Y]-=0.1f;
 
-		snake.addLength(50);
 		point.generate(borders);
+
+		snakes.add(Snake(Vector2(-0.2f, 0.0f), ws, SDLK_LEFT, SDLK_RIGHT, 90.0f, 2.5f));
+		snakes.add(Snake(Vector2(0.2f, 0.0f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
 
 		gameRunning = true;
 	}
 
 	void input(SDL_Event evnt)
 	{
-		if(gameRunning)
-			snake.input(evnt);
+		snakes.input(evnt);
 
 		if(evnt.type == SDL_KEYDOWN)
 		{
@@ -364,17 +415,13 @@ public:
 
 	void update()
 	{
-		if(gameRunning)
-		{
-			if(!snake.update(borders, point))
-				gameRunning = false;
-		}
+		snakes.update(borders, point);
 	}
 
 	void draw()
 	{
 		ws.draw();
-		snake.draw();
+		snakes.draw();
 		borders.draw();
 		point.draw();
 	}
@@ -382,8 +429,8 @@ public:
 private:
 	WorldSpace ws;
 
-	Snake snake;
 	Borders borders;
+	SnakeHandler snakes;
 	PointHandler point;
 
 	bool gameRunning;
