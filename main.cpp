@@ -234,6 +234,9 @@ public:
 		score = 0.0f;
 		alive = true;
 
+		immortalityTimer = 0.1f;
+		immortalityTimerMax = 30.0f;
+
 		r = rand() % 255 + 100;
 		g = rand() % 255 + 100;
 		b = rand() % 255 + 100;
@@ -283,6 +286,13 @@ public:
 
 			return false;
 		}
+
+		if(isImmortal())
+		{
+			if((immortalityTimer+=0.1f) >= immortalityTimerMax)
+				immortalityTimer = 0.0f;
+		}
+
 
 		int intersectionIndex = point.intersectsPoint(parts[0]);
 
@@ -345,7 +355,7 @@ public:
 			{
 				for(size_t si = 0; si < other.size(); si++)
 				{
-					if(partIntersection(other[si].getHeadPosition(), parts[pi]))
+					if(!other[si].isImmortal() && partIntersection(other[si].getHeadPosition(), parts[pi]))
 						other[si].kill();
 				}
 				
@@ -367,6 +377,11 @@ public:
 	{
 		//SDL_Log("Snake killed!");
 		alive = false;
+	}
+
+	bool isImmortal()
+	{
+		return immortalityTimer > 0.0f;
 	}
 
 	void draw()
@@ -399,13 +414,21 @@ public:
 			  ng = g,
 			  nb = b;
 
-		/*float dr = (float)r / (parts.size() * 2);
-		float dg = (float)g / (parts.size() * 2);
-		float db = (float)b / (parts.size() * 2);
-*/
-		float dr = (float)r / parts.size();
-		float dg = (float)g / parts.size();
-		float db = (float)b / parts.size();
+		float dr, dg, db;
+
+		if(isImmortal())
+		{
+			dr = (float)r / (parts.size() / 2);
+			dg = (float)g / (parts.size() / 2);
+			db = (float)b / (parts.size() / 2);
+		}
+
+		else
+		{
+			dr = (float)r / parts.size();
+			dg = (float)g / parts.size();
+			db = (float)b / parts.size();
+		}
 
 
 		for(size_t i = 1; i < parts.size(); i++)
@@ -430,6 +453,9 @@ private:
 
 	float score;
 	bool alive;
+
+	float immortalityTimer;
+	float immortalityTimerMax;
 
 	unsigned char r;
 	unsigned char g;
@@ -512,12 +538,7 @@ public:
 		 * Angles such as 45, 135, 225, 315 will make the snake eat itself.
 		 */
 		snakes.add(Snake(2, Vector2(0.0f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
-		snakes.add(Snake(2, Vector2(0.1f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
-		snakes.add(Snake(2, Vector2(0.2f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
-		snakes.add(Snake(2, Vector2(0.3f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
-		snakes.add(Snake(2, Vector2(0.4f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
-		snakes.add(Snake(2, Vector2(0.5f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
-		snakes.add(Snake(2, Vector2(0.6f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
+		snakes.add(Snake(2, Vector2(0.6f, 0.2f), ws, 0, 0, 90.0f, 2.5f));
 
 		gameRunning = true;
 	}
