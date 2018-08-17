@@ -71,19 +71,74 @@ private:
 	WorldSpace& ws;
 };
 
+class Point
+{
+public:
+	Point(Vector2 center)
+	{
+		pointCenter = center;
+		staticSize = Vector2(0.05f, 0.05f);
+
+		generatedAt = std::chrono::high_resolution_clock::now();
+
+		pulseCounter = 0.0f;
+	}
+
+	void draw(WorldSpace& ws)
+	{
+		float radius = fabs(sin(pulseCounter) / 20);
+		pulseCounter+=0.03f;
+
+		Vector2 size(radius, radius);
+		Vector2 position = pointCenter - (size / 2);
+
+		Render::setColor(200, 0, 0);
+		Render::rect( ws.rectToScreen(position, size) );
+
+		size/=2;
+		position[Y]-= (size[H] / 2);
+		position[X]+= (size[W] / 2);
+
+		Render::setColor(0, 255, 0);
+		Render::rect( ws.rectToScreen(position, size) );
+	}
+
+	bool intersectsPoint(Vector2 ip)
+	{
+		Vector2 min = pointCenter - staticSize;
+		Vector2 max = pointCenter + staticSize;
+
+		return ip > min && ip < max;
+	}
+
+	int pick()
+	{
+		std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<float> elapsed = end - generatedAt;
+
+		return elapsed.count();
+	}
+
+private:
+	Vector2 pointCenter;
+	Vector2 staticSize;
+
+	float pulseCounter;
+
+	std::chrono::time_point<std::chrono::high_resolution_clock> generatedAt;
+};
+
 class PointHandler
 {
 public:
 	PointHandler(WorldSpace& ws) : ws(ws)
 	{
-		pulseCounter = 0.0f;
-		staticSize = Vector2(0.05f, 0.05f);
+		spawnTimer = 0.0f;
+		spawnTimerMax = 20.0f;
 	}
 
 	void generate(Borders& borders)
 	{
-		generatedAt = std::chrono::high_resolution_clock::now();
-
 		/*	TODO
 		 *	Do some clever to calculate a position between min and max
 		 */
@@ -107,62 +162,71 @@ public:
 
 		SDL_Log("%.2f : %.2f", x, y);
 
-		pointCenter = Vector2(x, y);
-		pulseCounter = 0.0f;
+		points.push_back( Point(Vector2(x, y)) );
 	}
 
-	int pick()
+	size_t intersectsPoint(Vector2 ip)
 	{
-		std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
-		std::chrono::duration<float> elapsed = end - generatedAt;
+		for(size_t i = 0; i < points.size(); i++)
+		{
+			if(points[i].intersectsPoint(ip))
+				return i;
+		}
 
-		return elapsed.count();
+		return -1;
 	}
 
-	bool intersectsPoint(Vector2 ip)
+	size_t count()
 	{
-		Vector2 min = pointCenter - staticSize;
-		Vector2 max = pointCenter + staticSize;
+		return points.size();
+	}
 
-		return ip > min && ip < max;
+	float pickPoint(size_t index)
+	{
+		float score = points[index].pick();
+		points.erase(points.begin() + index);
+
+		return score;
+	}
+
+	Point& operator[](size_t index)
+	{
+		return points[index];
+	}
+
+	void update(Borders& borders)
+	{
+		if((spawnTimer+=0.1f) >= spawnTimerMax)
+		{
+			generate(borders);
+			spawnTimer = 0.0f;
+		}
 	}
 
 	void draw()
 	{
-		float radius = fabs(sin(pulseCounter) / 20);
-		pulseCounter+=0.03f;
-
-		Vector2 size(radius, radius);
-		Vector2 position = pointCenter - (size / 2);
-
-		Render::setColor(200, 0, 0);
-		Render::rect( ws.rectToScreen(position, size) );
-
-		size/=2;
-		position[Y]-= (size[H] / 2);
-		position[X]+= (size[W] / 2);
-
-		Render::setColor(0, 255, 0);
-		Render::rect( ws.rectToScreen(position, size) );
+		for(size_t i = 0; i < points.size(); i++)
+			points[i].draw(ws);
 	}
 
 private:
-	Vector2 pointCenter;
-	Vector2 staticSize;
+	std::vector <Point> points;
 
-	std::chrono::time_point<std::chrono::high_resolution_clock> generatedAt;
+	float spawnTimer;
+	float spawnTimerMax;
 
-	float pulseCounter;
 	WorldSpace& ws;
 };
 
 class Snake
 {
 public:
-	Snake(Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, float direction, float sensitivity) : ws(ws)
+	Snake(int id, Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, float direction, float sensitivity) : ws(ws)
 	{
 		parts.push_back(origin);
 		addLength(50);
+
+		snakeID = id;
 
 		rotation = direction;
 		speed = 1.0f;
@@ -220,7 +284,9 @@ public:
 			return false;
 		}
 
-		if(point.intersectsPoint(parts[0]))
+		int intersectionIndex = point.intersectsPoint(parts[0]);
+
+		if(intersectionIndex != -1)
 		{
 			SDL_Log("Adding length! %d -> %d", (int)parts.size(), (int)parts.size() + 10);
 			SDL_Log("Adding speed! %.2f -> %.2f", speed, speed + 0.1f);
@@ -230,12 +296,14 @@ public:
 			 */
 
 			float ls = score;
-			float ns = point.pick();
+			float ns = point.pickPoint(intersectionIndex); 
 
 			score+=ns;
 			SDL_Log("Score! %.2f -> %.2f", ls, score);
 
-			point.generate(borders);
+			if(point.count() <= 0)
+				point.generate(borders);
+
 			addLength(10);
 
 			speed+=0.1f;
@@ -324,27 +392,38 @@ public:
 			Vector2 position = part - Vector2(hitBoxRadius, hitBoxRadius);
 			Vector2 size = Vector2(hitBoxRadius * 2, hitBoxRadius * 2);
 
-			Render::setColor(r, g, b);
 			Render::rect( ws.rectToScreen(position, size) );
 		};
 
+		float nr = r,
+			  ng = g,
+			  nb = b;
+
+		/*float dr = (float)r / (parts.size() * 2);
+		float dg = (float)g / (parts.size() * 2);
+		float db = (float)b / (parts.size() * 2);
+*/
+		float dr = (float)r / parts.size();
+		float dg = (float)g / parts.size();
+		float db = (float)b / parts.size();
+
+
 		for(size_t i = 1; i < parts.size(); i++)
 		{
-			//Render::setColor(0, 255, 0);
+			nr-=dr;
+			ng-=dg;
+			nb-=db;
 
-			/*Vector2 tPos = ws.toScreen(parts[i]);
-			Vector2 tPosLast = ws.toScreen(parts[i - 1]);
-			*/
-		//	Render::line(tPos[X], tPos[Y], tPosLast[X], tPosLast[Y]);
-			//Render::dot(tPos[X], tPos[Y]);
+			Render::setColor((int)nr, (int)ng, (int)nb);
 
-		//	drawSphere(parts[i]);
 			drawHitbox(parts[i]);
 		}
 	}
 
 private:
 	std::vector <Vector2> parts;
+
+	int snakeID;
 
 	float rotation;
 	float speed;
@@ -391,13 +470,25 @@ public:
 			snakeStates[i] = snakes[i].update(borders, point, snakes);
 		}
 
+		std::vector <size_t> successes;
 		int successfulReturns = 0;
+
 		for(size_t i = 0; i < snakeStates.size(); i++)
 		{
-			successfulReturns += (snakeStates[i] == true);
+			if(snakeStates[i] == true)
+			{
+				successfulReturns++;
+				successes.push_back(i);
+			}
 		}
 
-		return successfulReturns > 1;
+		if(successfulReturns <= 1)
+		{
+			SDL_Log("Player %d wins!", (int)successes[0] + 1);
+			return false;
+		}
+
+		return true;
 	}
 
 private:
@@ -417,8 +508,16 @@ public:
 
 		point.generate(borders);
 
-		snakes.add(Snake(Vector2(-0.2f, 0.0f), ws, SDLK_LEFT, SDLK_RIGHT, 90.0f, 2.5f));
-		snakes.add(Snake(Vector2(0.2f, 0.0f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
+		/* TODO
+		 * Angles such as 45, 135, 225, 315 will make the snake eat itself.
+		 */
+		snakes.add(Snake(2, Vector2(0.0f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
+		snakes.add(Snake(2, Vector2(0.1f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
+		snakes.add(Snake(2, Vector2(0.2f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
+		snakes.add(Snake(2, Vector2(0.3f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
+		snakes.add(Snake(2, Vector2(0.4f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
+		snakes.add(Snake(2, Vector2(0.5f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
+		snakes.add(Snake(2, Vector2(0.6f, 0.2f), ws, SDLK_n, SDLK_m, 90.0f, 2.5f));
 
 		gameRunning = true;
 	}
@@ -442,10 +541,15 @@ public:
 
 	void update()
 	{
-		if(gameRunning && !snakes.update(borders, point))
+		if(gameRunning)
 		{
-			SDL_Log("End");
-			gameRunning = false;
+			if(!snakes.update(borders, point))
+			{
+				SDL_Log("End");
+				gameRunning = false;
+			}
+
+			point.update(borders);
 		}
 	}
 
