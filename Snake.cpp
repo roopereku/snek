@@ -210,9 +210,9 @@ void Snake::draw()
 
 	else
 	{
-		dr = (float)r / parts.size();
-		dg = (float)g / parts.size();
-		db = (float)b / parts.size();
+		dr = (float)r / (parts.size() * 1.1f);
+		dg = (float)g / (parts.size() * 1.1f);
+		db = (float)b / (parts.size() * 1.1f);
 	}
 
 	for(size_t i = 1; i < parts.size(); i++)
