@@ -13,6 +13,7 @@ public:
 
 	void draw(WorldSpace& ws);
 	bool intersectsPoint(Vector2 ip);
+	bool isAlive();
 	int pick();
 
 private:
@@ -20,6 +21,7 @@ private:
 	Vector2 staticSize;
 
 	float pulseCounter;
+	unsigned char life;
 
 	std::chrono::time_point<std::chrono::high_resolution_clock> generatedAt;
 };

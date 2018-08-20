@@ -9,6 +9,7 @@ Point::Point(Vector2 center)
 	generatedAt = std::chrono::high_resolution_clock::now();
 
 	pulseCounter = 0.0f;
+	life = 255;
 }
 
 void Point::draw(WorldSpace& ws)
@@ -16,18 +17,27 @@ void Point::draw(WorldSpace& ws)
 	float radius = fabs(sin(pulseCounter) / 20);
 	pulseCounter+=0.03f;
 
+	std::chrono::duration <float> elapsed = std::chrono::high_resolution_clock::now() - generatedAt;
+	life = 255 - elapsed.count() * 10;
+	SDL_Log("%d", life);
+
 	Vector2 size(radius, radius);
 	Vector2 position = pointCenter - (size / 2);
 
-	Render::setColor(200, 0, 0);
+	Render::setColor(life, 0, 0);
 	Render::rect( ws.rectToScreen(position, size) );
 
 	size/=2;
 	position[Y]-= (size[H] / 2);
 	position[X]+= (size[W] / 2);
 
-	Render::setColor(0, 255, 0);
+	Render::setColor(0, life, 0);
 	Render::rect( ws.rectToScreen(position, size) );
+}
+
+bool Point::isAlive()
+{
+	return life > 0;
 }
 
 bool Point::intersectsPoint(Vector2 ip)

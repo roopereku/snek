@@ -26,7 +26,7 @@ void PointHandler::generate(Borders& borders)
 	for(int yi = 0; yi < ySize; yi++)
 		yData[yi] = borders.getMinimum()[Y] + 0.1f * yi;
 
-	SDL_Log("%d : %d", xSize, ySize);
+//	SDL_Log("%d : %d", xSize, ySize);
 
 	float x = xData[ (rand() % xSize + 2) - 1 ];
 	float y = yData[ (rand() % ySize + 2) - 1 ];
@@ -72,6 +72,15 @@ void PointHandler::update(Borders& borders)
 		if(points.size() + 1 <= (size_t)maxPoints)
 			generate(borders);
 		spawnTimer = 0.0f;
+	}
+
+	for(auto& it : points)
+	{
+		if(!it.isAlive())
+		{
+			SDL_Log("Delete");
+			//points.erase(points.begin() + it);
+		}
 	}
 }
 

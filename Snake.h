@@ -34,7 +34,7 @@ private:
 	float rotation;
 	float speed;
 
-	float score;
+	unsigned long long score;
 	bool alive;
 
 	float immortalityTimer;

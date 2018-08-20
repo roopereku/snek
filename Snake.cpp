@@ -16,7 +16,7 @@ Snake::Snake(int id, Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, 
 	rotation = direction;
 	speed = 1.0f;
 
-	score = 0.0f;
+	score = 0;
 	alive = true;
 
 	immortalityTimer = 0.1f;
@@ -83,15 +83,20 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 
 	if(intersectionIndex != -1)
 	{
-		SDL_Log("Adding length! %d -> %d", (int)parts.size(), (int)parts.size() + 10);
-		SDL_Log("Adding speed! %.2f -> %.2f", speed, speed + 0.1f);
+		//SDL_Log("Adding length! %d -> %d", (int)parts.size(), (int)parts.size() + 10);
+		//SDL_Log("Adding speed! %.2f -> %.2f", speed, speed + 0.1f);
 
-		float ls = score;
+		unsigned long long ls = score;
 		float sec = point.pickPoint(intersectionIndex);
-		float ns = 100 / sec;
+		float ms = sec / 1000;
 
-		score+=ns;
-		SDL_Log("Score! %.2f -> %.2f    %.2f", ls, score, sec);
+		if(ms > 0)
+		{
+			int ns = ( 100 / sec ) / speed;
+			score+=ns;
+			SDL_Log("Score! %lu -> %lu    %.2f", ls, score, sec);
+		}
+
 
 		if(point.count() <= 0)
 			point.generate(borders);
