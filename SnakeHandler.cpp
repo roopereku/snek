@@ -2,25 +2,37 @@
 
 SnakeHandler::SnakeHandler(WorldSpace& ws, Config& config)
 {
-	constexpr int keys[2][2]
+	constexpr int keys[][2]
 	{
 		{ SDLK_LEFT, SDLK_RIGHT },
 		{ SDLK_n, SDLK_m }
 	};
 
-	constexpr float direction[2]
+	constexpr float direction[]
 	{
 		0.0f,
-		180.0f
+		270.0f,
+		180.0f,
+		90.0f
 	};
 
-	const Vector2 origin[2]
+	const Vector2 origin[]
 	{
 		Vector2(-0.2f, -0.2f),
-		Vector2(+0.2f, +0.2f)
+		Vector2(-0.2f, +0.2f),
+		Vector2(+0.2f, +0.2f),
+		Vector2(+0.2f, -0.2f)
 	};
 
+	constexpr int maxPlayers = 4;
 	int numPlayers = config.fromSingle("-players");
+
+	if(numPlayers > maxPlayers)
+	{
+		SDL_Log("There can be only %d players!", maxPlayers);
+		numPlayers = maxPlayers;
+	}
+
 	SDL_Log("Creating %d players!", numPlayers);
 
 	for(int i = 0; i < numPlayers; i++)
