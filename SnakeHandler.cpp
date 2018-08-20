@@ -5,7 +5,9 @@ SnakeHandler::SnakeHandler(WorldSpace& ws, Config& config)
 	constexpr int keys[][2]
 	{
 		{ SDLK_LEFT, SDLK_RIGHT },
-		{ SDLK_n, SDLK_m }
+		{ SDLK_n, SDLK_m },
+		{ SDLK_z, SDLK_x },
+		{ SDLK_j, SDLK_k }
 	};
 
 	constexpr float direction[]
