@@ -4,13 +4,14 @@
 #include "WorldSpace.h"
 #include "Borders.h"
 #include "Point.h"
+#include "Config.h"
 
 #include <vector>
 
 class PointHandler
 {
 public:
-	PointHandler(WorldSpace& ws);
+	PointHandler(WorldSpace& ws, Config& config);
 
 	void generate(Borders& borders);
 	

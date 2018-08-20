@@ -1,11 +1,11 @@
 #include "PointHandler.h"
 
-PointHandler::PointHandler(WorldSpace& ws) : ws(ws)
+PointHandler::PointHandler(WorldSpace& ws, Config& config) : ws(ws)
 {
 	spawnTimer = 0.0f;
-	spawnTimerMax = 20.0f;
 
-	maxPoints = 3;
+	spawnTimerMax = config.fromSingle("-appledelay");
+	maxPoints = config.fromSingle("-maxapples");
 }
 
 void PointHandler::generate(Borders& borders)

@@ -30,7 +30,9 @@ std::string loadFile(const char* path)
 
 Config::Config(int argc, char** argv)
 {
-	configDataMultiple["-sensitivity"];
+	configDataMultiple["-sensitivity"].resize(4, 2.5f);
+
+	configDataSingle["-appledelay"] = 20.0f;
 	configDataSingle["-players"] = 1;
 	configDataSingle["-maxapples"] = 1;
 
@@ -54,9 +56,6 @@ void Config::parseArguments(int argc, char** argv)
 		{
 			std::string key = argv[i];
 			i++;
-
-			float currentValue = 0.0f;
-
 
 			configDataSingle[key] = strTo<float>(argv[i]); 
 
@@ -93,12 +92,12 @@ void Config::parseArguments(int argc, char** argv)
 	}
 }
 
-int Config::getPlayers()
+float Config::fromSingle(std::string index)
 {
-	return configDataSingle["-players"];
+	return configDataSingle[index];
 }
 
-float Config::getSensitivity(size_t index)
+float Config::fromMulti(std::string index, size_t i)
 {
-	return configDataMultiple["-sensitivity"][index];
+	return configDataMultiple[index][i];
 }

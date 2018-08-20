@@ -4,6 +4,7 @@
 #include "WorldSpace.h"
 #include "PointHandler.h"
 #include "Borders.h"
+#include "Config.h"
 #include "Snake.h"
 
 #include <SDL2/SDL.h>
@@ -13,7 +14,7 @@
 class SnakeHandler
 {
 public:
-	SnakeHandler(WorldSpace& ws);
+	SnakeHandler(WorldSpace& ws, Config& config);
 
 	void add(Snake snake);
 	void input(SDL_Event evnt);

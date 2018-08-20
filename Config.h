@@ -12,8 +12,8 @@ class Config
 public:
 	Config(int argc, char** argv);
 
-	int getPlayers();
-	float getSensitivity(size_t index);
+	float fromSingle(std::string index);
+	float fromMulti(std::string index, size_t i);
 
 private:
 	void parseArguments(int argc, char** argv);

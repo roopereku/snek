@@ -1,9 +1,33 @@
 #include "SnakeHandler.h"
 
-SnakeHandler::SnakeHandler(WorldSpace& ws)
+SnakeHandler::SnakeHandler(WorldSpace& ws, Config& config)
 {
-	add(Snake(2, Vector2(0.0f, 0.2f), ws, SDLK_n, SDLK_m, 45.0f, 2.5f));
-	//add(Snake(2, Vector2(0.6f, 0.2f), ws, 0, 0, 90.0f, 2.5f));
+	constexpr int keys[2][2]
+	{
+		{ SDLK_LEFT, SDLK_RIGHT },
+		{ SDLK_n, SDLK_m }
+	};
+
+	constexpr float direction[2]
+	{
+		0.0f,
+		180.0f
+	};
+
+	const Vector2 origin[2]
+	{
+		Vector2(-0.2f, -0.2f),
+		Vector2(+0.2f, +0.2f)
+	};
+
+	int numPlayers = config.fromSingle("-players");
+	SDL_Log("Creating %d players!", numPlayers);
+
+	for(int i = 0; i < numPlayers; i++)
+	{
+		SDL_Log("[Snake %d] Sensitivity : %.2f", i + 1, config.fromMulti("-sensitivity", i));;
+		add( Snake(i + 1, origin[i], ws, keys[i][0], keys[i][1], direction[i], config.fromMulti("-sensitivity", i)) );
+	}
 
 	initialSnakeAmount = snakes.size();
 }
