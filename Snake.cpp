@@ -86,15 +86,12 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 		SDL_Log("Adding length! %d -> %d", (int)parts.size(), (int)parts.size() + 10);
 		SDL_Log("Adding speed! %.2f -> %.2f", speed, speed + 0.1f);
 
-		/*	TODO
-		 *	Do some calculation to add more to the score the less time is spent
-		 */
-
 		float ls = score;
-		float ns = point.pickPoint(intersectionIndex); 
+		float sec = point.pickPoint(intersectionIndex);
+		float ns = 100 / sec;
 
 		score+=ns;
-		SDL_Log("Score! %.2f -> %.2f", ls, score);
+		SDL_Log("Score! %.2f -> %.2f    %.2f", ls, score, sec);
 
 		if(point.count() <= 0)
 			point.generate(borders);
