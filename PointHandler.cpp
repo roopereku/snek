@@ -4,6 +4,8 @@ PointHandler::PointHandler(WorldSpace& ws) : ws(ws)
 {
 	spawnTimer = 0.0f;
 	spawnTimerMax = 20.0f;
+
+	maxPoints = 3;
 }
 
 void PointHandler::generate(Borders& borders)
@@ -67,7 +69,8 @@ void PointHandler::update(Borders& borders)
 {
 	if((spawnTimer+=0.1f) >= spawnTimerMax)
 	{
-		generate(borders);
+		if(points.size() + 1 <= (size_t)maxPoints)
+			generate(borders);
 		spawnTimer = 0.0f;
 	}
 }

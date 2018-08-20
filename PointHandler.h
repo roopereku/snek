@@ -28,6 +28,7 @@ private:
 
 	float spawnTimer;
 	float spawnTimerMax;
+	int maxPoints;
 
 	WorldSpace& ws;
 };
