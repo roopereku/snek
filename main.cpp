@@ -4,12 +4,7 @@
 #include "Renderer.h"
 #include "Game.h"
 
-#include <math.h>
 #include <time.h>
-#include <stdlib.h>
-#include <chrono>
-#include <vector>
-#include <map>
 
 int main(int argc, char** argv)
 {
