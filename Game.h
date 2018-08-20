@@ -6,6 +6,7 @@
 #include "Borders.h"
 #include "SnakeHandler.h"
 #include "PointHandler.h"
+#include "Config.h"
 #include "Vector2.h"
 
 #include <SDL2/SDL.h>
@@ -13,7 +14,7 @@
 class Game
 {
 public:
-	Game(Window& win);
+	Game(Window& win, Config& config);
 
 	void input(SDL_Event evnt);
 	void update();

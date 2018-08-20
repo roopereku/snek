@@ -1,6 +1,6 @@
 #include "Game.h"
 
-Game::Game(Window& win) : ws(win), borders(Vector2(-0.7f, -0.7f), Vector2(0.7f, 0.7f), ws), snakes(ws), point(ws)
+Game::Game(Window& win, Config& config) : ws(win), borders(Vector2(-0.7f, -0.7f), Vector2(0.7f, 0.7f), ws), snakes(ws), point(ws)
 {
 	ws[X]-=0.1f;
 	ws[Y]-=0.1f;
