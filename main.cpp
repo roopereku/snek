@@ -3,6 +3,7 @@
 #include "Window.h"
 #include "Renderer.h"
 #include "Game.h"
+#include "Config.h"
 
 #include <time.h>
 
@@ -15,7 +16,8 @@ int main(int argc, char** argv)
 		bool isRunning;
 		Window win("", isRunning, true, 4, 2);
 
-		Game game(win);
+		Config config(argc, argv);
+		Game game(win, config);
 
 		while(isRunning)
 		{
