@@ -2,13 +2,15 @@
 #include "Renderer.h"
 
 Borders::Borders(Vector2 min, Vector2 max, WorldSpace& ws) : ws(ws)
-	{
-		this->min = min;
-		this->max = max;
-	}
+{
+	this->min = min;
+	this->max = max;
+}
 
 void Borders::draw()
 {
+	// Create a white rectangle in between of min and max
+
 	Render::setColor(255, 255, 255);
 
 	Vector2 tMin = ws.toScreen(min);

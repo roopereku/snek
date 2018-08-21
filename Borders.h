@@ -15,12 +15,13 @@ public:
 	bool pointInsideX(float position);
 	bool pointInsideY(float position);
 
+	// Position getters
 	Vector2 getMinimum();
 	Vector2 getMaximum();
 
 private:
-	Vector2 min;
-	Vector2 max;
+	Vector2 min; // Minimum position of borders
+	Vector2 max; // Maximum position of borders
 
 	WorldSpace& ws;
 };
