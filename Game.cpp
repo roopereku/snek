@@ -14,15 +14,16 @@ void Game::input(SDL_Event evnt)
 {
 	snakes.input(evnt);
 
+	// Camera controls
 	if(evnt.type == SDL_KEYDOWN)
 	{
 		switch(evnt.key.keysym.sym)
 		{
-			case SDLK_w: ws[Y]+=0.1f; break;
-			case SDLK_s: ws[Y]-=0.1f; break;
+			case SDLK_w: ws[Y]-=0.1f; break;
+			case SDLK_s: ws[Y]+=0.1f; break;
 
-			case SDLK_a: ws[X]-=0.1f; break;
-			case SDLK_d: ws[X]+=0.1f; break;
+			case SDLK_a: ws[X]+=0.1f; break;
+			case SDLK_d: ws[X]-=0.1f; break;
 		}
 	}
 }
@@ -31,6 +32,10 @@ void Game::update()
 {
 	if(gameRunning)
 	{
+		/*	If updating snakes returns false, there's only 0 - 1 snakes left.
+		 *	GameRunning will be set to false if this happens
+		 */
+
 		if(!snakes.update(borders, point))
 		{
 			SDL_Log("End");
@@ -48,5 +53,3 @@ void Game::draw()
 	borders.draw();
 	point.draw();
 }
-
-
