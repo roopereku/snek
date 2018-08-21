@@ -9,35 +9,40 @@ Point::Point(Vector2 center)
 	generatedAt = std::chrono::high_resolution_clock::now();
 
 	pulseCounter = 0.0f;
-	life = 255;
 }
 
 void Point::draw(WorldSpace& ws)
 {
+	// How large the apple will be
 	float radius = fabs(sin(pulseCounter) / 20);
 	pulseCounter+=0.03f;
 
-	std::chrono::duration <float> elapsed = std::chrono::high_resolution_clock::now() - generatedAt;
-	life = 255 - elapsed.count() * 5;
-//	SDL_Log("%d", life);
+	/*	Get elapsed time of apple.
+	 *	The longer it has been present, the darker it will get.
+	 */
 
+	std::chrono::duration <float> elapsed = std::chrono::high_resolution_clock::now() - generatedAt;
+	unsigned char c = 255 - elapsed.count() * 10;
+
+	if(c <= 50)
+		c = 50;
+
+	// Calculate apple min and max
 	Vector2 size(radius, radius);
 	Vector2 position = pointCenter - (size / 2);
 
-	Render::setColor(life, 0, 0);
+	// Draw the apple
+	Render::setColor(c, 0, 0);
 	Render::rect( ws.rectToScreen(position, size) );
 
+	// Shrink min and max for the leaf
 	size/=2;
 	position[Y]-= (size[H] / 2);
 	position[X]+= (size[W] / 2);
 
-	Render::setColor(0, life, 0);
+	// Draw the leaf
+	Render::setColor(0, c, 0);
 	Render::rect( ws.rectToScreen(position, size) );
-}
-
-bool Point::isAlive()
-{
-	return life > 0;
 }
 
 bool Point::intersectsPoint(Vector2 ip)
@@ -50,9 +55,10 @@ bool Point::intersectsPoint(Vector2 ip)
 
 int Point::pick()
 {
-	std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<float> elapsed = end - generatedAt;
+	// Get the elapsed time
+	std::chrono::duration<float> elapsed = std::chrono::high_resolution_clock::now() - generatedAt;
 
+	// Return seconds
 	return elapsed.count();
 }
 
