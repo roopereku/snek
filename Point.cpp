@@ -18,8 +18,8 @@ void Point::draw(WorldSpace& ws)
 	pulseCounter+=0.03f;
 
 	std::chrono::duration <float> elapsed = std::chrono::high_resolution_clock::now() - generatedAt;
-	life = 255 - elapsed.count() * 10;
-	SDL_Log("%d", life);
+	life = 255 - elapsed.count() * 5;
+//	SDL_Log("%d", life);
 
 	Vector2 size(radius, radius);
 	Vector2 position = pointCenter - (size / 2);
