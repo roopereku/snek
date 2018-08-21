@@ -9,7 +9,12 @@
 
 int main(int argc, char** argv)
 {
+	// Give a seed for rand.
 	srand(time(0));
+
+	/*	Check whether SDL can be initialized.
+	 *	SDL_Init return 0 on success or -1 on failure.
+	 */
 
 	if(!SDL_Init(SDL_INIT_VIDEO))
 	{
@@ -21,6 +26,8 @@ int main(int argc, char** argv)
 
 		while(isRunning)
 		{
+			// Input
+
 			SDL_Event evnt;
 			while(SDL_PollEvent(&evnt))
 			{
@@ -28,7 +35,11 @@ int main(int argc, char** argv)
 				game.input(evnt);
 			}
 
+			// Update
+
 			game.update();
+
+			// Draw
 
 			Render::setColor(0, 0, 0);
 			Render::clearScreen();
