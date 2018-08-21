@@ -1,8 +1,8 @@
 #include "Config.h"
 
-#include <string>
 #include <sstream>
 #include <fstream>
+#include <vector>
 
 template <typename T>
 T strTo(std::string str)
@@ -12,16 +12,39 @@ T strTo(std::string str)
 	return value;
 }
 
-std::string loadFile(const char* path)
+void Config::parseFile(const char* path)
 {
-	std::string data;
+	std::vector <std::string> data(1);
 
 	std::ifstream fileI(path);
 	if(fileI.is_open())
 	{
 		std::string line;
+		std::string arg;
+
 		while(std::getline(fileI, line))
-			data+=line+' ';
+		{
+			line+=' ';
+			for(size_t i = 0; i < line.length(); i++)
+			{
+				if(line[i] != ' ')
+				{
+					arg+=line[i];
+					SDL_Log("%c", line[i]);
+				}
+				else
+				{
+					data.push_back(arg);
+					arg = "";
+				}
+			}
+			data.push_back(arg);
+		}
+
+		for(size_t i = 0; i < data.size(); i++)
+			SDL_Log("Arg : %s", data[i].c_str());
+
+		parseArguments(data);
 	}
 
 	else
@@ -38,39 +61,48 @@ Config::Config(int argc, char** argv)
 
 	if(argc <= 1)
 	{
-		SDL_Log("No arguments passed!");
+		const char* defaultPath = "conf";
+		SDL_Log("No arguments passed! Loading from %s", defaultPath);
+		parseFile(defaultPath);
 	}
 
 	else if(argc >= 2)
 	{
 		SDL_Log("%d arguments passed!", argc - 1);
-		parseArguments(argc, argv);
+
+		std::vector <std::string> args(argc);
+		for(size_t i = 0; i < args.size(); i++)
+			args[i] = argv[i];
+
+		parseArguments(args);
 	}
 }
 
-void Config::parseArguments(int argc, char** argv)
+void Config::parseArguments(std::vector <std::string> args)
 {
-	for(size_t i = 1; i < (size_t)argc; i++)
+	SDL_Log("%d arguments found!", (int)args.size());
+
+	for(size_t i = 1; i < args.size(); i++)
 	{
-		if(configDataSingle.find(argv[i]) != configDataSingle.end())
+		if(configDataSingle.find(args[i]) != configDataSingle.end())
 		{
-			std::string key = argv[i];
+			std::string key = args[i];
 			i++;
 
-			configDataSingle[key] = strTo<float>(argv[i]); 
+			configDataSingle[key] = strTo<float>(args[i]); 
 
-			float value = configDataSingle[ argv[i - 1] ];
+			float value = configDataSingle[ args[i - 1] ];
 			SDL_Log("%s set to %.2f!", key.c_str(), value);
 		}
 
-		else if(configDataMultiple.find(argv[i]) != configDataMultiple.end())
+		else if(configDataMultiple.find(args[i]) != configDataMultiple.end())
 		{
-			std::string key = argv[i];
+			std::string key = args[i];
 			i++;
 
-			size_t playerIndex = strTo<size_t>(argv[i]);
+			size_t playerIndex = strTo<size_t>(args[i]);
 			i++;
-			float value = strTo<float>(argv[i]);
+			float value = strTo<float>(args[i]);
 
 			if(playerIndex >= configDataMultiple[key].size())
 			{
@@ -87,7 +119,8 @@ void Config::parseArguments(int argc, char** argv)
 
 		else
 		{
-			SDL_Log("'%s' is not a valid argument!", argv[i]);
+			
+			SDL_Log("'%s' is not a valid argument!", args[i].c_str());
 		}
 	}
 }

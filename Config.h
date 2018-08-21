@@ -16,7 +16,8 @@ public:
 	float fromMulti(std::string index, size_t i);
 
 private:
-	void parseArguments(int argc, char** argv);
+	void parseArguments(std::vector <std::string> args);
+	void parseFile(const char* path);
 
 	std::map <std::string, float> configDataSingle;
 	std::map <std::string, std::vector <float>> configDataMultiple;
