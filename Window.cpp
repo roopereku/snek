@@ -33,6 +33,12 @@ Window::Window(const char* name, bool& success, bool hasVsync, int sizeDivX, int
 	}
 }
 
+Window::~Window()
+{
+	SDL_DestroyRenderer(gRenderer);
+	SDL_DestroyWindow(gWindow);
+}
+
 int Window::operator[](const char type)
 {
 	switch(type)
