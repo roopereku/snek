@@ -4,6 +4,7 @@ PointHandler::PointHandler(WorldSpace& ws, Config& config) : ws(ws)
 {
 	spawnTimer = 0.0f;
 
+	// Set things relative to configuration data
 	spawnTimerMax = config.fromSingle("-appledelay");
 	maxPoints = config.fromSingle("-maxapples");
 }
@@ -11,14 +12,18 @@ PointHandler::PointHandler(WorldSpace& ws, Config& config) : ws(ws)
 void PointHandler::generate(Borders& borders)
 {
 	/*	TODO
-	 *	Do some clever to calculate a position between min and max
+	 *	Do something clever to calculate a position between min and max
 	 */
 
+	// Amount of possible positions
 	int xSize = (borders.getMaximum()[X] - borders.getMinimum()[X]) * 10;
 	int ySize = (borders.getMaximum()[Y] - borders.getMinimum()[Y]) * 10;
 
+	// Vector to store possible positions in
 	std::vector <float> xData(xSize);
 	std::vector <float> yData(ySize);
+
+	// Fill the vectors
 
 	for(int xi = 0; xi < xSize; xi++)
 		xData[xi] = borders.getMinimum()[X] + 0.1f * xi;
@@ -26,7 +31,7 @@ void PointHandler::generate(Borders& borders)
 	for(int yi = 0; yi < ySize; yi++)
 		yData[yi] = borders.getMinimum()[Y] + 0.1f * yi;
 
-//	SDL_Log("%d : %d", xSize, ySize);
+	// Get a random position and create a point
 
 	float x = xData[ (rand() % xSize + 2) - 1 ];
 	float y = yData[ (rand() % ySize + 2) - 1 ];
@@ -38,6 +43,10 @@ void PointHandler::generate(Borders& borders)
 
 size_t PointHandler::intersectsPoint(Vector2 ip)
 {
+	/*	If ip intersects some point,
+	 *	return the index of that point
+	 */
+
 	for(size_t i = 0; i < points.size(); i++)
 	{
 		if(points[i].intersectsPoint(ip))
@@ -54,6 +63,8 @@ size_t PointHandler::count()
 
 float PointHandler::pickPoint(size_t index)
 {
+	// Delete point at index x and return the time it took to collect it
+
 	float score = points[index].pick();
 	points.erase(points.begin() + index);
 
@@ -67,20 +78,16 @@ Point& PointHandler::operator[](size_t index)
 
 void PointHandler::update(Borders& borders)
 {
+	/*	If spawnTimer is greater than spawnTimerMax,
+	 *	set spawnTimer to 0.0 and generate a new point
+	 *	if the amount of points + 1 is less than maxPoints
+	 */
+
 	if((spawnTimer+=0.1f) >= spawnTimerMax)
 	{
 		if(points.size() + 1 <= (size_t)maxPoints)
 			generate(borders);
 		spawnTimer = 0.0f;
-	}
-
-	for(auto& it : points)
-	{
-		if(!it.isAlive())
-		{
-			SDL_Log("Delete");
-			//points.erase(points.begin() + it);
-		}
 	}
 }
 
