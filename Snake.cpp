@@ -169,7 +169,7 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 	for(int i = 0; i < speed; i++)
 	{
 		Vector2 last = parts[0];
-		parts[0]+=(direction * 0.004f);
+		parts[0]+=(direction * 0.003f);
 
 		// Loop through the parts and move them
 		for(size_t pi = 1; pi < parts.size(); pi++)
