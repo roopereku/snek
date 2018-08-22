@@ -74,15 +74,7 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 	{
 		if(parts.size() > 0)
 		{
-			int toDelete = 100 / parts.size();
-			
-			for(int i = 0; i < toDelete; i++)
-			{
-				if(i >= parts.size())
-					break;
-
-				parts.pop_back();
-			}
+			parts.pop_back();
 			return true;
 		}
 
