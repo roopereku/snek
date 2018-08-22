@@ -40,10 +40,12 @@ private:
 	float immortalityTimer;
 	float immortalityTimerMax;
 
+	// Snake colors
 	unsigned char r;
 	unsigned char g;
 	unsigned char b;
 
+	// Key data
 	struct Key { bool pressed = false; float effect = 0.0f; };
 	std::map <int, Key> keys;
 

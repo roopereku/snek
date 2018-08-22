@@ -22,12 +22,13 @@ Snake::Snake(int id, Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, 
 	immortalityTimer = 0.1f;
 	immortalityTimerMax = 30.0f;
 
+	// Randomize snake colors
 	r = rand() % 255 + 100;
 	g = rand() % 255 + 100;
 	b = rand() % 255 + 100;
 
+	// Set key data
 	keys[keyLeft].pressed = keys[keyRight].pressed = 0;
-
 	keys[keyLeft].effect = -sensitivity;
 	keys[keyRight].effect = sensitivity;
 }
@@ -42,6 +43,10 @@ void Snake::addLength(int amount)
 
 void Snake::input(SDL_Event evnt)
 {
+	/*	If a key was pressed and if it exists in keys,
+	 *	modify the pressed value.
+	 */
+
 	int keyID = -1;
 	bool pressed = false;
 
@@ -61,16 +66,30 @@ void Snake::input(SDL_Event evnt)
 
 bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& other)
 {
+	/*	If the snake isn't alive, check whether the snake still has parts.
+	 *	If it does, remove some. Else signal the SnakeHandler that this snake is dead.
+	 */
+
 	if(!alive)
 	{
 		if(parts.size() > 0)
 		{
-			parts.pop_back();
+			int toDelete = 100 / parts.size();
+			
+			for(int i = 0; i < toDelete; i++)
+			{
+				if(i >= parts.size())
+					break;
+
+				parts.pop_back();
+			}
 			return true;
 		}
 
 		return false;
 	}
+
+	// If the snake is immortal, advance the timer
 
 	if(isImmortal())
 	{
@@ -78,13 +97,18 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 			immortalityTimer = 0.0f;
 	}
 
-
+	// If the snake head hits some point, get the index of that point
 	int intersectionIndex = point.intersectsPoint(parts[0]);
 
+	// If the index is positive, pick the point and add to the score
 	if(intersectionIndex != -1)
 	{
 		//SDL_Log("Adding length! %d -> %d", (int)parts.size(), (int)parts.size() + 10);
 		//SDL_Log("Adding speed! %.2f -> %.2f", speed, speed + 0.1f);
+		
+		/*	Now pick the apple, and add to the score.
+		 *	The less time is spent picking the point, the more will be added to the score
+		 */
 
 		unsigned long long ls = score;
 		float sec = point.pickPoint(intersectionIndex);
@@ -98,6 +122,7 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 		}
 
 
+		// If there are no points present, generate one
 		if(point.count() <= 0)
 			point.generate(borders);
 
@@ -106,6 +131,8 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 		speed+=0.1f;
 	}
 
+	//	If the snake head isn't inside the borders, move it to the other side
+
 	if(!borders.pointInside(parts[0]))
 	{
 		if(!borders.pointInsideX(parts[0][X]))
@@ -113,6 +140,8 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 		if(!borders.pointInsideY(parts[0][Y]))
 			parts[0][Y] = (parts[0][Y] > 0.0f) ? borders.getMinimum()[Y] : borders.getMaximum()[Y];
 	}
+	
+	//	Loop through all the valid keys.
 
 	for(auto& it : keys)
 	{
@@ -120,9 +149,11 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 			rotation+=it.second.effect;
 	}
 
+	// Calculate the snake direction
 	float rot = toRadian(rotation);
 	Vector2 direction(cos(rot), sin(rot));
 
+	// A lambda that check if a snake head intersects with a snake part
 	const auto partIntersection = [&](Vector2 head, Vector2 part) -> bool
 	{
 		constexpr float hitBoxRadius = 0.004f;
@@ -133,13 +164,17 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 		return head > min && head < max;
 	};
 
+	// Move the snake and handle collision
+
 	for(int i = 0; i < speed; i++)
 	{
 		Vector2 last = parts[0];
-		parts[0]+=(direction * 0.005f);
+		parts[0]+=(direction * 0.004f);
 
+		// Loop through the parts and move them
 		for(size_t pi = 1; pi < parts.size(); pi++)
 		{
+			// Loop through the snake heads to check whether they hit the current part
 			for(size_t si = 0; si < other.size(); si++)
 			{
 				if(!other[si].isImmortal() && partIntersection(other[si].getHeadPosition(), parts[pi]))
@@ -173,20 +208,6 @@ bool Snake::isImmortal()
 
 void Snake::draw()
 {
-	const auto drawSphere = [&](Vector2 center)
-	{
-		//#define r rand() % 255 + 1
-		//Render::setColor(r, r, r);
-
-		for(int i = 0; i < 360; i++)
-		{
-			float rad = toRadian(i);
-			Vector2 current = ws.toScreen(center + (Vector2(cos(rad), sin(rad)) * 0.05f));
-
-			Render::dot(current[X], current[Y]);
-		}
-	};
-
 	const auto drawHitbox = [&](Vector2 part) -> void
 	{
 		constexpr float hitBoxRadius = 0.004f;
@@ -197,11 +218,17 @@ void Snake::draw()
 		Render::rect( ws.rectToScreen(position, size) );
 	};
 
+	// Temporary values to hold snake colors
 	float nr = r,
 		  ng = g,
 		  nb = b;
 
+	// How much will be decremented from the values above per loop
 	float dr, dg, db;
+
+	/*	Give values to dr, dg and db.
+	 *	The calculations below will give a gradient effetc
+	 */
 
 	if(isImmortal())
 	{
