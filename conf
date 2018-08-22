@@ -1,3 +1,6 @@
--players 1
+-players 2
+
 -sensitivity 1 4
--maxapples 2
+-sensitivity 2 4
+
+-maxapples 5
