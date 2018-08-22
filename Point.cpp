@@ -22,7 +22,7 @@ void Point::draw(WorldSpace& ws)
 	 */
 
 	std::chrono::duration <float> elapsed = std::chrono::high_resolution_clock::now() - generatedAt;
-	unsigned char c = 255 - elapsed.count() * 10;
+	unsigned char c = 255 - elapsed.count() * 15;
 
 	if(c <= 50)
 		c = 50;
