@@ -20,6 +20,7 @@ private:
 	Vector2 staticSize;
 
 	float pulseCounter;
+	unsigned char visibility;
 
 	// When the point was generated
 	std::chrono::time_point<std::chrono::high_resolution_clock> generatedAt;

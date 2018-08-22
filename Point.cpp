@@ -9,6 +9,7 @@ Point::Point(Vector2 center)
 	generatedAt = std::chrono::high_resolution_clock::now();
 
 	pulseCounter = 0.0f;
+	visibility = 255;
 }
 
 void Point::draw(WorldSpace& ws)
@@ -22,17 +23,18 @@ void Point::draw(WorldSpace& ws)
 	 */
 
 	std::chrono::duration <float> elapsed = std::chrono::high_resolution_clock::now() - generatedAt;
-	unsigned char c = 255 - elapsed.count() * 15;
 
-	if(c <= 50)
-		c = 50;
+	if(visibility >= 50)
+		visibility = 255 - elapsed.count() * 15;
+
+	SDL_Log("%d", visibility);
 
 	// Calculate apple min and max
 	Vector2 size(radius, radius);
 	Vector2 position = pointCenter - (size / 2);
 
 	// Draw the apple
-	Render::setColor(c, 0, 0);
+	Render::setColor(visibility, 0, 0);
 	Render::rect( ws.rectToScreen(position, size) );
 
 	// Shrink min and max for the leaf
@@ -41,7 +43,7 @@ void Point::draw(WorldSpace& ws)
 	position[X]+= (size[W] / 2);
 
 	// Draw the leaf
-	Render::setColor(0, c, 0);
+	Render::setColor(0, visibility, 0);
 	Render::rect( ws.rectToScreen(position, size) );
 }
 
