@@ -26,6 +26,7 @@ public:
 private:
 	std::vector <Snake> snakes;
 
+	// Used to check whether the game was started in singleplayer
 	int initialSnakeAmount;
 };
 

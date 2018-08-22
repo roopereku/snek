@@ -2,6 +2,11 @@
 
 SnakeHandler::SnakeHandler(WorldSpace& ws, Config& config)
 {
+	/*	Some presets for snake data.
+	 *	These will likely be set in the
+	 *	default config file
+	 */
+
 	constexpr int keys[][2]
 	{
 		{ SDLK_LEFT, SDLK_RIGHT },
@@ -25,6 +30,8 @@ SnakeHandler::SnakeHandler(WorldSpace& ws, Config& config)
 		Vector2(+0.2f, +0.2f),
 		Vector2(+0.2f, -0.2f)
 	};
+
+	// Create the players
 
 	constexpr int maxPlayers = 4;
 	int numPlayers = config.fromSingle("-players");
@@ -65,15 +72,25 @@ void SnakeHandler::draw()
 
 bool SnakeHandler::update(Borders& borders, PointHandler& point)
 {
+	/*	Create a vector that contains the return values
+	 *	of each snake update calls.
+	 */
+
 	std::vector <bool> snakeStates(snakes.size());
 		
 	for(size_t i = 0; i < snakes.size(); i++)
 		snakeStates[i] = snakes[i].update(borders, point, snakes);
 
+	// If there was only 1 snake to begin with, return the first element
+
 	if(initialSnakeAmount == 1)
 	{
 		return snakeStates[0];
 	}
+
+	/*	Create a vector that contains the successful returns.
+	 *	This will be used to determine the winning player.
+	 */
 
 	std::vector <size_t> successes;
 	int successfulReturns = 0;
@@ -86,6 +103,8 @@ bool SnakeHandler::update(Borders& borders, PointHandler& point)
 			successes.push_back(i);
 		}
 	}
+
+	// If there's only 1 snake left, make the game end and print the winner
 
 	if(successfulReturns <= 1)
 	{
@@ -100,5 +119,3 @@ int SnakeHandler::initialSnakes()
 {
 	return initialSnakeAmount;
 }
-
-
