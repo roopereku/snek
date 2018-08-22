@@ -110,7 +110,7 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 		{
 			int ns = ( 100 / sec ) / speed;
 			score+=ns;
-			SDL_Log("Score! %lu -> %lu    %.2f", ls, score, sec);
+			SDL_Log("[Snake %d] Score : %llu", snakeID, score);
 		}
 
 
