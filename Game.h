@@ -27,6 +27,7 @@ private:
 	SnakeHandler snakes;
 	PointHandler point;
 
+	bool gamePaused;
 	bool gameRunning;
 };
 
