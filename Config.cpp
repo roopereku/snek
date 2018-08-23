@@ -17,23 +17,41 @@ Config::Config(int argc, char** argv)
 	// All valid arguments are declared here.
 
 	configDataMultiple["-sensitivity"].resize(4, 2.5f);
+	configDataMultiple["-direction"].resize(4, 0.0f);
 
 	configDataSingle["-appledelay"] = 20.0f;
 	configDataSingle["-players"] = 1;
 	configDataSingle["-maxapples"] = 1;
+	configDataSingle["-acceleration"] = 0.25f;
+	configDataSingle["-initialspeed"] = 1.0f;
 
-	if(argc <= 1)
+	// Parse the default config file.
+
+	const char* defaultPath = "conf";
+	parseFile(defaultPath);
+	
+
+	// Parse command-line arguments.
+
+	if(argc > 1)
 	{
-		// Parse the default config file.
+		// If there are only 2 arguments and the second one is -help, print out the valid arguments
+		if( argc == 2 && std::string(argv[1]) == "-help")
+		{
+			std::string helpMsg = "\n\nAvailable arguments:\n";
 
-		const char* defaultPath = "conf";
-		SDL_Log("No arguments passed! Loading from %s", defaultPath);
-		parseFile(defaultPath);
-	}
+			for(auto& it : configDataSingle)
+				helpMsg += "	" + it.first + "	value\n";
 
-	else if(argc >= 2)
-	{
-		// Parse command-line arguments.
+			helpMsg += "\n";
+
+			for(auto& it : configDataMultiple)
+				helpMsg += "	" + it.first + "	index" + "	value\n";
+
+			SDL_Log("%s\n\n", helpMsg.c_str());
+
+			return;
+		}
 
 		SDL_Log("%d arguments passed!", argc - 1);
 
@@ -82,9 +100,6 @@ void Config::parseFile(const char* path)
 			}
 			data.push_back(arg);
 		}
-
-		for(size_t i = 0; i < data.size(); i++)
-			SDL_Log("Arg : %s", data[i].c_str());
 
 		parseArguments(data);
 	}
@@ -145,7 +160,8 @@ void Config::parseArguments(std::vector <std::string> args)
 
 		else
 		{
-			SDL_Log("'%s' is not a valid argument!", args[i].c_str());
+			if(args[i].length() > 0)
+				SDL_Log("'%s' is not a valid argument!", args[i].c_str());
 		}
 	}
 }

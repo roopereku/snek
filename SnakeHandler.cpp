@@ -15,14 +15,6 @@ SnakeHandler::SnakeHandler(WorldSpace& ws, Config& config)
 		{ SDLK_j, SDLK_k }
 	};
 
-	constexpr float direction[]
-	{
-		0.0f,
-		270.0f,
-		180.0f,
-		90.0f
-	};
-
 	const Vector2 origin[]
 	{
 		Vector2(-0.2f, -0.2f),
@@ -47,7 +39,7 @@ SnakeHandler::SnakeHandler(WorldSpace& ws, Config& config)
 	for(int i = 0; i < numPlayers; i++)
 	{
 		SDL_Log("[Snake %d] Sensitivity : %.2f", i + 1, config.fromMulti("-sensitivity", i));;
-		add( Snake(i + 1, origin[i], ws, keys[i][0], keys[i][1], direction[i], config.fromMulti("-sensitivity", i)) );
+		add( Snake(i, origin[i], ws, keys[i][0], keys[i][1], config) );
 	}
 
 	initialSnakeAmount = snakes.size();

@@ -5,6 +5,7 @@
 #include "PointHandler.h"
 #include "Borders.h"
 #include "Vector2.h"
+#include "Config.h"
 
 #include <SDL2/SDL.h>
 
@@ -14,7 +15,7 @@
 class Snake
 {
 public:
-	Snake(int id, Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, float direction, float sensitivity); 
+	Snake(int id, Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, Config& config); 
 
 	void addLength(int amount);
 	void input(SDL_Event evnt);
@@ -33,6 +34,7 @@ private:
 
 	float rotation;
 	float speed;
+	float acceleration;
 
 	unsigned long long score;
 	bool alive;

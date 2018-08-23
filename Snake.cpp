@@ -6,15 +6,16 @@ float toRadian(float degrees)
 	return degrees * 0.0174532925;
 }
 
-Snake::Snake(int id, Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, float direction, float sensitivity) : ws(ws)
+Snake::Snake(int id, Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, Config& config) : ws(ws)
 {
 	parts.push_back(origin);
 	addLength(50);
 
 	snakeID = id;
 
-	rotation = direction;
-	speed = 1.0f;
+	rotation = config.fromMulti("-direction", id);
+	speed = config.fromSingle("-initialspeed");
+	acceleration = config.fromSingle("-acceleration");
 
 	score = 0;
 	alive = true;
@@ -29,6 +30,8 @@ Snake::Snake(int id, Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, 
 
 	// Set key data
 	keys[keyLeft].pressed = keys[keyRight].pressed = 0;
+
+	float sensitivity = config.fromMulti("-sensitivity", id);
 	keys[keyLeft].effect = -sensitivity;
 	keys[keyRight].effect = sensitivity;
 }
@@ -120,7 +123,7 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 
 		addLength(10);
 
-		speed+=0.1f;
+		speed+=acceleration;
 	}
 
 	//	If the snake head isn't inside the borders, move it to the other side
@@ -158,7 +161,7 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 
 	// Move the snake and handle collision
 
-	for(int i = 0; i < speed; i++)
+	for(int i = 0; i < (int)speed; i++)
 	{
 		Vector2 last = parts[0];
 		parts[0]+=(direction * 0.003f);
