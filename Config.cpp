@@ -24,6 +24,7 @@ Config::Config(int argc, char** argv)
 	configDataSingle["-maxapples"] = 1;
 	configDataSingle["-acceleration"] = 0.25f;
 	configDataSingle["-initialspeed"] = 1.0f;
+	configDataSingle["-maxplayers"] = 1.0f;
 
 	// Parse the default config file.
 
@@ -80,6 +81,10 @@ void Config::parseFile(const char* path)
 
 		while(std::getline(fileI, line))
 		{
+			// Skip the line if the first character is #
+			if(line[0] == '#')
+				continue;
+
 			/*	Loop through line.
 			 *	If a space or the end of the line occurs,
 			 *	push arg in data.
