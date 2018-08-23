@@ -7,6 +7,11 @@ SnakeHandler::SnakeHandler(WorldSpace& ws, Config& config)
 	 *	default config file
 	 */
 
+	/*	TODO
+	 *	Think of some clever way to define players keys
+	 *	in the config file
+	 */
+
 	constexpr int keys[][2]
 	{
 		{ SDLK_LEFT, SDLK_RIGHT },
@@ -25,7 +30,7 @@ SnakeHandler::SnakeHandler(WorldSpace& ws, Config& config)
 
 	// Create the players
 
-	constexpr int maxPlayers = 4;
+	const int maxPlayers = config.fromSingle("-maxplayers");
 	int numPlayers = config.fromSingle("-players");
 
 	if(numPlayers > maxPlayers)
@@ -38,7 +43,6 @@ SnakeHandler::SnakeHandler(WorldSpace& ws, Config& config)
 
 	for(int i = 0; i < numPlayers; i++)
 	{
-		SDL_Log("[Snake %d] Sensitivity : %.2f", i + 1, config.fromMulti("-sensitivity", i));;
 		add( Snake(i, origin[i], ws, keys[i][0], keys[i][1], config) );
 	}
 
