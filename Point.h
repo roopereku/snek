@@ -12,6 +12,7 @@ public:
 	Point(Vector2 center);
 
 	void draw(WorldSpace& ws);
+	void update();
 	bool intersectsPoint(Vector2 ip);
 	int pick();
 
