@@ -6,6 +6,7 @@ Point::Point(Vector2 center)
 	pointCenter = center;
 	staticSize = Vector2(0.05f, 0.05f);
 
+	// Get the current time
 	generatedAt = std::chrono::high_resolution_clock::now();
 
 	pulseCounter = 0.0f;
@@ -24,10 +25,9 @@ void Point::draw(WorldSpace& ws)
 
 	std::chrono::duration <float> elapsed = std::chrono::high_resolution_clock::now() - generatedAt;
 
-	if(visibility >= 50)
+	// Check whether visibility is greater than 50. If it is, make the apple darker
+	if(visibility > 50)
 		visibility = 255 - elapsed.count() * 15;
-
-	SDL_Log("%d", visibility);
 
 	// Calculate apple min and max
 	Vector2 size(radius, radius);

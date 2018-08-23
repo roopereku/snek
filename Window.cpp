@@ -3,14 +3,18 @@
 
 Window::Window(const char* name, bool& success, bool hasVsync, int sizeDivX, int sizeDivY)
 {
+	// Success is set to false to shorten code
 	success = false;
 
+	// Get the monitor resolution
 	SDL_DisplayMode dMode;
 	SDL_GetCurrentDisplayMode(0, &dMode);
 
+	// Set width and height
 	width = dMode.w / sizeDivX;
 	height = dMode.h / sizeDivY;
 
+	// Create a window and do error checking
 	gWindow = SDL_CreateWindow(name, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_RESIZABLE);
 
 	if(gWindow == nullptr)
@@ -18,6 +22,7 @@ Window::Window(const char* name, bool& success, bool hasVsync, int sizeDivX, int
 
 	else
 	{
+		// Create a renderer and do error checking
 		auto renderFlags = SDL_RENDERER_ACCELERATED | (hasVsync ? SDL_RENDERER_PRESENTVSYNC : 0);
 		gRenderer = SDL_CreateRenderer(gWindow, -1, renderFlags);
 
@@ -26,8 +31,8 @@ Window::Window(const char* name, bool& success, bool hasVsync, int sizeDivX, int
 
 		else
 		{
+			// Set ths renderer as the current one
 			Render::set(gRenderer);
-
 			success = true;
 		}
 	}
@@ -54,8 +59,10 @@ void Window::input(SDL_Event evnt, bool& running)
 {
 	switch(evnt.type)
 	{
+		// If windows is closed, set running to false
 		case SDL_QUIT: running = false; break;
 
+		// If the window is resized, adjust width and height
 		case SDL_WINDOWEVENT:
 			if(evnt.window.event == SDL_WINDOWEVENT_RESIZED)
 			{

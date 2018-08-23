@@ -16,8 +16,8 @@ public:
 	bool pointInsideY(float position);
 
 	// Position getters
-	Vector2 getMinimum();
-	Vector2 getMaximum();
+	Vector2& getMinimum();
+	Vector2& getMaximum();
 
 private:
 	Vector2 min; // Minimum position of borders

@@ -37,12 +37,12 @@ bool Borders::pointInsideY(float position)
 	return position > min[Y] && position < max[Y];
 }
 
-Vector2 Borders::getMinimum()
+Vector2& Borders::getMinimum()
 {
 	return min;
 }
 
-Vector2 Borders::getMaximum()
+Vector2& Borders::getMaximum()
 {
 	return max;
 }

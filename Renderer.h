@@ -7,6 +7,7 @@ namespace Render
 {
 	typedef unsigned char uChar;
 
+	// Renderer setter/getter
 	SDL_Renderer* get();
 	void set(SDL_Renderer* gRenderer_);
 

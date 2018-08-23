@@ -15,6 +15,7 @@ public:
 
 	float& operator[](int index);
 
+	// Helper functions to translate world space coordinates to screen space
 	Vector2 toScreen(Vector2 vec);
 	SDL_Rect rectToScreen(Vector2 position, Vector2 size);
 

@@ -12,7 +12,10 @@ public:
 	Vector2(float v1, float v2);
 	Vector2();
 
+	// X/Y getter
 	float& operator[](size_t index);
+
+	// A bunch of operator overloads
 
 	void operator+=(Vector2 vec);
 	void operator-=(Vector2 vec);
