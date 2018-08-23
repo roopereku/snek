@@ -1,7 +1,12 @@
 #include "Game.h"
 #include "Renderer.h"
 
-Game::Game(Window& win, Config& config) : ws(win), borders(Vector2(-0.7f, -0.7f), Vector2(0.7f, 0.7f), ws), snakes(ws, config), point(ws, config)
+Game::Game(Window& win, Config& config) :
+	ws(win),
+	// TODO make it so that the border coordinates can be loaded from config
+	borders(Vector2(-0.7f, -0.7f), Vector2(0.7f, 0.7f), ws),
+	snakes(ws, config),
+	point(ws, config)
 {
 	ws[X]-=0.1f;
 	ws[Y]-=0.1f;
@@ -9,7 +14,7 @@ Game::Game(Window& win, Config& config) : ws(win), borders(Vector2(-0.7f, -0.7f)
 	point.generate(borders);
 
 	gameRunning = true;
-	gamePaused = true;
+	gamePaused = config.fromSingle("-pauseonstart");
 }
 
 void Game::input(SDL_Event evnt)

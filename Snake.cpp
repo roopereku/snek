@@ -12,6 +12,7 @@ Snake::Snake(int id, Vector2 origin, WorldSpace& ws, int keyLeft, int keyRight, 
 	addLength(50);
 
 	snakeID = id;
+	SDL_Log("%d", snakeID);
 
 	rotation = config.fromMulti("-direction", id);
 	speed = config.fromSingle("-initialspeed");

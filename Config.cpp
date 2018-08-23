@@ -25,6 +25,7 @@ Config::Config(int argc, char** argv)
 	configDataSingle["-acceleration"] = 0.25f;
 	configDataSingle["-initialspeed"] = 1.0f;
 	configDataSingle["-maxplayers"] = 1.0f;
+	configDataSingle["-pauseonstart"] = 0;
 
 	// Parse the default config file.
 
