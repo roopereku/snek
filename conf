@@ -1,8 +1,15 @@
--players 2
+-players 1
+
+# Sensitivities for 4 players
 -sensitivity 1 4
 -sensitivity 2 4
 -sensitivity 3 4
 -sensitivity 4 4
+
+# Speed
 -initialspeed 2.0
 -acceleration 0.25
+
+# Limits
 -maxapples 5
+-maxplayers 4
