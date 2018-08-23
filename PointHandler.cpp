@@ -36,8 +36,6 @@ void PointHandler::generate(Borders& borders)
 	float x = xData[ (rand() % xSize + 2) - 1 ];
 	float y = yData[ (rand() % ySize + 2) - 1 ];
 
-	SDL_Log("%.2f : %.2f", x, y);
-
 	points.push_back( Point(Vector2(x, y)) );
 }
 
@@ -89,6 +87,9 @@ void PointHandler::update(Borders& borders)
 			generate(borders);
 		spawnTimer = 0.0f;
 	}
+
+	for(size_t i = 0; i < points.size(); i++)
+		points[i].update();
 }
 
 void PointHandler::draw()
