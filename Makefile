@@ -1,6 +1,3 @@
-# This is just a simple Makefile to make compilation less of a hassle
-# and should be improved later
-
 CC	=	g++
 EXE	=	Snake
 SRC	=	./*.cpp
