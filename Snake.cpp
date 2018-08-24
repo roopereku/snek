@@ -165,6 +165,11 @@ bool Snake::update(Borders& borders, PointHandler& point, std::vector <Snake>& o
 	for(int i = 0; i < (int)speed; i++)
 	{
 		Vector2 last = parts[0];
+
+		/*	It's important that the value which multiplies direction is less than hitBoxRadius.
+		 *	Else the snake can clip through other snakes
+		 */
+
 		parts[0]+=(direction * 0.003f);
 
 		// Loop through the parts and move them
