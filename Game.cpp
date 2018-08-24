@@ -61,9 +61,10 @@ void Game::update()
 
 void Game::draw()
 {
-	ws.draw();
-	borders.draw();
+	if(gamePaused)
+		ws.draw();
 
+	borders.draw();
 	snakes.draw();
 	point.draw();
 }
