@@ -14,3 +14,14 @@ You can also edit the conf file to set arguments.
 WARNING:
 	Using arguments like -sensitivity 1 -player  will instantly crash the game,
 	because currently it's assumed that the syntax is correct.
+
+-------------------------
+
+Currently the available keys are:
+	WASD	-	For camera controls
+	
+	Left/Right	-\
+	n/m			--\
+					>	Player controls (Will be customizable later)
+	z/x			--/
+	j/k			-/
