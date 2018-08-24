@@ -43,7 +43,16 @@ SnakeHandler::SnakeHandler(WorldSpace& ws, Config& config)
 
 	for(int i = 0; i < numPlayers; i++)
 	{
-		add( Snake(i, origin[i], ws, keys[i][0], keys[i][1], config) );
+		/*	Check if i is less than the size of keys/origin.
+		 *	This is here to prevent a crash.
+		 */
+
+		int keyL = i < 4 ? keys[i][0] : 0;
+		int keyR = i < 4 ? keys[i][1] : 0;
+
+		Vector2 position = i < 4 ? origin[i] : Vector2(0.0f, 0.0f);
+
+		add( Snake(i, position, ws, keyL, keyR, config) );
 	}
 
 	initialSnakeAmount = snakes.size();
