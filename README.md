@@ -20,8 +20,8 @@ WARNING:
 Currently the available keys are:
 	WASD	-	For camera controls
 	
-	Left/Right  -\
-	n/m	        --\
+    Left/Right  -\
+    n/m         --\
 	               >	Player controls (Will be customizable later)
-	z/x         --/
-	j/k         -/
+    z/x         --/
+    j/k         -/
