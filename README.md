@@ -25,3 +25,5 @@ Currently the available keys are:
 	               >	Player controls (Will be customizable later)
     z/x         --/
     j/k         -/
+
+    Enter	-	Toggle pause
